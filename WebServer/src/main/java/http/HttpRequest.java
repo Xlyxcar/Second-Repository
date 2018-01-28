@@ -32,6 +32,26 @@ public class HttpRequest {
 		this.in = in;
 		parseRequestLine();
 		parseHeaders();
+		parseContent();
+	}
+	//解析消息正文
+	private void parseContent() {
+		try {
+			//如果存在正文长度,则正文存在
+			String len;
+			System.out.println("进入读取消息正文"+headers.get("Content-Length"));
+			if(headers.containsKey(HttpConText.HEADER_CONTENT_LENGTH)){
+				int length = Integer.valueOf(headers.get(HttpConText.HEADER_CONTENT_LENGTH));
+				byte[] data = new byte[length];
+				in.read(data);
+				String line = new String(data);
+				line = URLDecoder.decode(line, ServerContext.URIEncoding);
+				parseQuery(line);
+				System.out.println("解析完毕");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	//解析请求行
 	public void parseRequestLine() throws EnptyRequestException{
@@ -44,6 +64,8 @@ public class HttpRequest {
 		url = arr[1];
 		if(url.indexOf("?")!=-1){
 			parseUrl();
+		}else{
+			requestURI = url;
 		}
 		protocol = arr[2];
 		System.out.println("请求方法:"+method+",请求链接:"+url+",协议版本:"+protocol);
@@ -54,16 +76,20 @@ public class HttpRequest {
 	private void parseUrl() {
 		try {
 			url = URLDecoder.decode(url,ServerContext.URIEncoding);
+			System.out.println("url::"+url);
 			requestURI = url.substring(0, url.indexOf("?"));
-			queryString = url.substring(url.indexOf("?")+1, url.length());
-			String[] querys = queryString.split("&");
-			for(String s:querys){
-				int index = s.indexOf("=");
-				paramenters.put(s.substring(0,index), s.substring(index+1, s.length()));
-				System.out.println("参数:"+s.substring(0,index)+",值:"+s.substring(index+1, s.length()));
-			}
+			queryString = url.substring(url.indexOf("?")+1, url.length());				
+			parseQuery(queryString);
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
+		}
+	}
+	private void parseQuery(String str) {
+		String[] querys = str.split("&");
+		for(String s:querys){
+			int index = s.indexOf("=");
+			paramenters.put(s.substring(0,index), s.substring(index+1, s.length()));
+			System.out.println("参数:"+s.substring(0,index)+",值:"+s.substring(index+1, s.length()));
 		}
 	}
 	//解析消息头

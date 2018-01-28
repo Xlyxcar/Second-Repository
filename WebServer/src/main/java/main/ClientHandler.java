@@ -35,6 +35,7 @@ public class ClientHandler implements Runnable{
 			System.out.println(request.getRequestURI());
 			//通过请求URI获取对应的Servlet类名
 			String servletName = ServerContext.getServletNameByURI(request.getRequestURI());
+			System.out.println("servletName"+servletName);
 			if(servletName!=null){
 				//获得对应Servlet的Class对象
 				Class cls = Class.forName(servletName);
