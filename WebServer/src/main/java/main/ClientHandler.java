@@ -5,9 +5,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.net.Socket;
 import java.util.Arrays;
 
+import context.ServerContext;
 import http.EnptyRequestException;
 import http.HttpRequest;
 import http.HttpResponse;
@@ -31,14 +33,18 @@ public class ClientHandler implements Runnable{
 			File f = new File("webapps/"+request.getUrl());
 			System.out.println("文件存在:"+f.exists());
 			System.out.println(request.getRequestURI());
-			if("/myweb/login".equals(request.getRequestURI())){
-				System.out.println("进入登录处理方法");
-				LoginServlet login = new LoginServlet();
-				login.service(request,response);
-			}else if("/myweb/reg".equals(request.getRequestURI())){
-				RegServlet servlet = new RegServlet();
-				servlet.service(request, response);
-				
+			//通过请求URI获取对应的Servlet类名
+			String servletName = ServerContext.getServletNameByURI(request.getRequestURI());
+			if(servletName!=null){
+				//获得对应Servlet的Class对象
+				Class cls = Class.forName(servletName);
+				//通过Class对象获得实例对象
+				Object obj = cls.newInstance();
+				//通过Class对象指定方法名,参数的方法获得方法
+				Method method = cls.getDeclaredMethod("service", new Class[]{HttpRequest.class,HttpResponse.class});
+				//执行方法,指定执行对象及参数
+				method.invoke(obj, new Object[]{request,response});
+
 			}else if(f.exists()){
 				
 				String extension = request.getUrl().substring(request.getUrl().indexOf(".")+1);
@@ -56,6 +62,8 @@ public class ClientHandler implements Runnable{
 			e.printStackTrace();
 		} catch (EnptyRequestException e) {
 			System.out.println("空请求:"+e.getMessage());
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	

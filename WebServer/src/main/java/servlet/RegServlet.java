@@ -30,6 +30,7 @@ public class RegServlet extends HttpServlet{
 				//响应注册失败页面
 				forward("webapps/myweb/reg_haveUser.html",request,response);
 			}else{
+				
 				user = new UserInfo();
 				user.setUsername(username);
 				user.setPassword(request.getParameter("password"));
