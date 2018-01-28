@@ -6,9 +6,11 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Arrays;
 
+import dao.UserInfoDAO;
 import http.HttpRequest;
 import http.HttpResponse;
 import http.HttpServlet;
+import vo.UserInfo;
 
 public class RegServlet extends HttpServlet{
 
@@ -18,45 +20,24 @@ public class RegServlet extends HttpServlet{
 			RandomAccessFile raf = new RandomAccessFile("user.dat", "rw");
 		){
 			System.out.println("进入注册流程");
-			
-			//判断用户名是否存在
+			//获取用户名
 			String username = request.getParameter("username");
 			
-			byte[] data = new byte[32];
-			String name;
-			boolean have = false;
-			for(int i=0;i<raf.length()/116;i++){
-				raf.seek(i*116);
-				
-				raf.read(data);
-				name = new String(data).trim();
-				if(name.equals(username)){
-					have = true;
-					break;
-				}
-			}
-			if(have){
+			//用户存在则返回用户信息
+			UserInfo user = UserInfoDAO.findByUsername(username);
+			
+			if(user!=null){
+				//响应注册失败页面
 				forward("webapps/myweb/reg_haveUser.html",request,response);
 			}else{
-				raf.seek(raf.length());
-				String password = request.getParameter("password");
-				String nickname = request.getParameter("nickname");
-				String phonenumber = request.getParameter("phonenumber");
-				
-				data = username.getBytes();
-				data = Arrays.copyOf(data, 32);
-				raf.write(data);
-				data = password.getBytes();
-				data = Arrays.copyOf(data, 32);
-				raf.write(data);
-				data = nickname.getBytes();
-				data = Arrays.copyOf(data, 32);
-				raf.write(data);
-				data = phonenumber.getBytes();
-				data = Arrays.copyOf(data, 32);
-				raf.write(data);
-				
-				
+				user = new UserInfo();
+				user.setUsername(username);
+				user.setPassword(request.getParameter("password"));
+				user.setNickname(request.getParameter("nickname"));
+				user.setPhonenumber(request.getParameter("phonenumber"));
+				//保存到文件中
+				UserInfoDAO.save(user);
+				//响应注册成功页面
 				forward("webapps/myweb/reg_success.html", request, response);
 			}
 		}catch(Exception e){
