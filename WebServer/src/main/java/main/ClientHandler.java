@@ -16,10 +16,13 @@ public class ClientHandler implements Runnable{
 	}
 	public void run() {
 		try {
+			//解析请求
 			InputStream in = socket.getInputStream();
 			HttpRequest request = new HttpRequest(in);
+			
 			OutputStream out = socket.getOutputStream();
 			HttpResponse response = new HttpResponse(out);
+			
 			File f = new File("webapps/"+request.getUrl());
 			System.out.println("文件存在:"+f.exists());
 			if(f.exists()){

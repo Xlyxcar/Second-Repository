@@ -6,15 +6,17 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import context.HttpConText;
+
 //HTTP响应分为三部分:
 //1,状态行
 //2.响应头
 //3.响应正文
 
 public class HttpResponse {
-	OutputStream out;
+	private OutputStream out;
 	//响应文件
-	File entity;
+	private File entity;
 	public HttpResponse(OutputStream out) {
 		this.out = out;
 	}
@@ -44,10 +46,10 @@ public class HttpResponse {
 	}
 	//发送响应头
 	private void sendHeaders() {
-		String line = "Content-Type:text/html";
+		String line = HttpConText.HEADER_CONTENT_TYPE+":"+"text/html";
 		sendStr(line);
 		
-		line = "Content-Length:" + entity.length();
+		line = HttpConText.HEADER_CONTENT_LENGTH+":"+entity.length();
 		sendStr(line);
 		sendStr("");
 	}
@@ -61,8 +63,8 @@ public class HttpResponse {
 		byte[] data = str.getBytes();
 		try {
 			out.write(data, 0, data.length);
-			out.write(13);
-			out.write(10);
+			out.write(HttpConText.CR);
+			out.write(HttpConText.LF);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

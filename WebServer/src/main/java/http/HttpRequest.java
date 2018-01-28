@@ -3,6 +3,10 @@ package http;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+
+import context.HttpConText;
 
 //HTTP请求的格式分为三个部分组成:
 //1:请求行
@@ -13,10 +17,13 @@ public class HttpRequest {
 	InputStream in;
 	//请求方法,链接,协议版本
 	private String method,url,protocol;
+	//存放消息头信息
+	private Map<String, String> headers = new HashMap<String,String>();
 	
 	public HttpRequest(InputStream in) {
 		this.in = in;
 		parseRequestLine();
+		parseHeaders();
 	}
 	//解析请求行
 	public void parseRequestLine(){
@@ -28,6 +35,21 @@ public class HttpRequest {
 		System.out.println("请求方法:"+method+",请求链接:"+url+",协议版本:"+protocol);
 	}
 	//解析消息头
+	public void parseHeaders(){
+		String line = readLine();
+		//消息头名,值
+		String name,value;
+		while(line.length()>1){
+			int index = line.indexOf(":");
+			name = line.substring(0,index);
+			value = line.substring(index+1, line.length()).trim();
+			headers.put(name, value);
+			System.out.println("存入:"+name+"和"+value);
+			line = readLine();
+		}
+		
+		
+	}
 	//解析消息正文
 	//读取一行消息
 	private String readLine() {
@@ -37,7 +59,7 @@ public class HttpRequest {
 			int i,c1,c2=-1;
 			while((i=in.read())!=-1){
 				c1 = i;
-				if(c2==13 && c1==10){
+				if(c2==HttpConText.CR && c1==HttpConText.LF){
 					break;
 				}
 				data.append((char)i);
