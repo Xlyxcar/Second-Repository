@@ -16,16 +16,25 @@ public class ClientHandler implements Runnable{
 	}
 	public void run() {
 		try {
-			//解析请求
+			//解析对象
 			InputStream in = socket.getInputStream();
 			HttpRequest request = new HttpRequest(in);
-			
+			//响应对象
 			OutputStream out = socket.getOutputStream();
 			HttpResponse response = new HttpResponse(out);
 			
 			File f = new File("webapps/"+request.getUrl());
 			System.out.println("文件存在:"+f.exists());
 			if(f.exists()){
+				
+				String extension = request.getUrl().substring(request.getUrl().indexOf(".")+1);
+				System.out.println("请求文件后缀:"+extension);
+				
+				//设置响应头中文件类型映射
+				response.setContentType(extension);
+				//设置响应头中文件长度
+				response.setContentLength(f.length());
+				
 				response.setEntity(f);
 				response.flush();
 			}

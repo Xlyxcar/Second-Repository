@@ -5,6 +5,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import context.HttpConText;
 
@@ -17,6 +20,10 @@ public class HttpResponse {
 	private OutputStream out;
 	//响应文件
 	private File entity;
+	//响应头信息
+	private Map<String, String> headers = new HashMap<String, String>();
+	
+	
 	public HttpResponse(OutputStream out) {
 		this.out = out;
 	}
@@ -46,11 +53,9 @@ public class HttpResponse {
 	}
 	//发送响应头
 	private void sendHeaders() {
-		String line = HttpConText.HEADER_CONTENT_TYPE+":"+"text/html";
-		sendStr(line);
-		
-		line = HttpConText.HEADER_CONTENT_LENGTH+":"+entity.length();
-		sendStr(line);
+		for(Entry<String, String>e:headers.entrySet()){
+			sendStr(e.getKey()+":"+e.getValue());
+		}
 		sendStr("");
 	}
 	//发送状态行
@@ -69,6 +74,15 @@ public class HttpResponse {
 			e.printStackTrace();
 		}
 		
+	}
+	//设置响应头类型
+	public void setContentType(String extension){
+		String value = HttpConText.getMimeType(extension);
+		headers.put(HttpConText.HEADER_CONTENT_TYPE, value);
+	}
+	//设置响应文件长度
+	public void setContentLength(long length){
+		headers.put(HttpConText.HEADER_CONTENT_LENGTH, ""+length);
 	}
 	//设定相应文件
 	public void setEntity(File entity) {
