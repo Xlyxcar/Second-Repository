@@ -1,0 +1,18 @@
+@CHARSET "UTF-8";
+
+body{
+	background-image:url("../background/background-1.jpg");
+}
+body>div{
+	width:300px;
+	margin:0px auto;
+	position:relative;
+	top:400px;
+}
+#search{
+	width:300px;height:30px;
+	border:1px solid #fdd;
+	margin:0px auto;
+	display:block;
+	position:absolute;
+}
