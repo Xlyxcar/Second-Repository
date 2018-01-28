@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import context.HttpConText;
+import context.ServerContext;
 
 //HTTP响应分为三部分:
 //1,状态行
@@ -60,7 +61,7 @@ public class HttpResponse {
 	}
 	//发送状态行
 	private void sendStatusLine() {
-		String statusLine = "HTTP/1,1 200 OK";
+		String statusLine = ServerContext.protocol+" 200 OK";
 		sendStr(statusLine);
 	}
 	//负责发送一行数据

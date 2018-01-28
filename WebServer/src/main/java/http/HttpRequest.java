@@ -3,10 +3,13 @@ package http;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
 
 import context.HttpConText;
+import context.ServerContext;
 
 //HTTP请求的格式分为三个部分组成:
 //1:请求行
@@ -49,13 +52,18 @@ public class HttpRequest {
 	 * 解析URL,将请求参数和链接分离
 	 */
 	private void parseUrl() {
-		requestURI = url.substring(0, url.indexOf("?"));
-		queryString = url.substring(url.indexOf("?")+1, url.length());
-		String[] querys = queryString.split("&");
-		for(String s:querys){
-			int index = s.indexOf("=");
-			paramenters.put(s.substring(0,index), s.substring(index+1, s.length()));
-			System.out.println("参数:"+s.substring(0,index)+",值:"+s.substring(index+1, s.length()));
+		try {
+			url = URLDecoder.decode(url,ServerContext.URIEncoding);
+			requestURI = url.substring(0, url.indexOf("?"));
+			queryString = url.substring(url.indexOf("?")+1, url.length());
+			String[] querys = queryString.split("&");
+			for(String s:querys){
+				int index = s.indexOf("=");
+				paramenters.put(s.substring(0,index), s.substring(index+1, s.length()));
+				System.out.println("参数:"+s.substring(0,index)+",值:"+s.substring(index+1, s.length()));
+			}
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
 		}
 	}
 	//解析消息头
