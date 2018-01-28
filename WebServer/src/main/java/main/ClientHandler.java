@@ -1,14 +1,17 @@
 package main;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.Arrays;
 
 import http.EnptyRequestException;
 import http.HttpRequest;
 import http.HttpResponse;
+import servlet.RegServlet;
 
 public class ClientHandler implements Runnable{
 	Socket socket;
@@ -26,7 +29,12 @@ public class ClientHandler implements Runnable{
 			
 			File f = new File("webapps/"+request.getUrl());
 			System.out.println("文件存在:"+f.exists());
-			if(f.exists()){
+			System.out.println(request.getRequestURI());
+			if("/myweb/reg".equals(request.getRequestURI())){
+				RegServlet servlet = new RegServlet();
+				servlet.service(request, response);
+				
+			}else if(f.exists()){
 				
 				String extension = request.getUrl().substring(request.getUrl().indexOf(".")+1);
 				System.out.println("请求文件后缀:"+extension);
@@ -42,7 +50,7 @@ public class ClientHandler implements Runnable{
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (EnptyRequestException e) {
-			System.out.println(e.getMessage());
+			System.out.println("空请求:"+e.getMessage());
 		}
 	}
 	
