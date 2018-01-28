@@ -7,8 +7,9 @@ import java.io.RandomAccessFile;
 
 import http.HttpRequest;
 import http.HttpResponse;
+import http.HttpServlet;
 
-public class LoginServlet {
+public class LoginServlet extends HttpServlet{
 	public void service(HttpRequest request,HttpResponse response){
 		try(
 			RandomAccessFile raf = new RandomAccessFile("user.dat", "r");
@@ -31,17 +32,9 @@ public class LoginServlet {
 				}
 			}
 			if(success){
-				response.setContentType("html");
-				File file = new File("webapps/myweb/login_suc.html");
-				response.setContentLength(file.length());
-				response.setEntity(file);
-				response.flush();
+				forward("webapps/myweb/login_suc.html",request,response);
 			}else{
-				response.setContentType("html");
-				File file = new File("webapps/myweb/login_fail.html");
-				response.setContentLength(file.length());
-				response.setEntity(file);
-				response.flush();
+				forward("webapps/myweb/login_fail.html", request, response);
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

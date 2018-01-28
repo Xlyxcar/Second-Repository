@@ -8,8 +8,9 @@ import java.util.Arrays;
 
 import http.HttpRequest;
 import http.HttpResponse;
+import http.HttpServlet;
 
-public class RegServlet {
+public class RegServlet extends HttpServlet{
 
 	public void service(HttpRequest request,HttpResponse response){
 		try(
@@ -35,11 +36,7 @@ public class RegServlet {
 				}
 			}
 			if(have){
-				response.setContentType("html");
-				File file = new File("webapps/myweb/reg_haveUser.html");
-				response.setContentLength(file.length());
-				response.setEntity(file);
-				response.flush();
+				forward("webapps/myweb/reg_haveUser.html",request,response);
 			}else{
 				raf.seek(raf.length());
 				String password = request.getParameter("password");
@@ -60,11 +57,7 @@ public class RegServlet {
 				raf.write(data);
 				
 				
-				response.setContentType("html");
-				File file = new File("webapps/myweb/reg_success.html");
-				response.setContentLength(file.length());
-				response.setEntity(file);
-				response.flush();
+				forward("webapps/myweb/reg_success.html", request, response);
 			}
 		}catch(Exception e){
 			e.printStackTrace();
