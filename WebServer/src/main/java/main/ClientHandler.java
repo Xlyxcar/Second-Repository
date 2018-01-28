@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
+import http.EnptyRequestException;
 import http.HttpRequest;
 import http.HttpResponse;
 
@@ -40,6 +41,8 @@ public class ClientHandler implements Runnable{
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
+		} catch (EnptyRequestException e) {
+			System.out.println(e.getMessage());
 		}
 	}
 	

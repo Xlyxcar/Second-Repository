@@ -20,14 +20,17 @@ public class HttpRequest {
 	//存放消息头信息
 	private Map<String, String> headers = new HashMap<String,String>();
 	
-	public HttpRequest(InputStream in) {
+	public HttpRequest(InputStream in) throws EnptyRequestException {
 		this.in = in;
 		parseRequestLine();
 		parseHeaders();
 	}
 	//解析请求行
-	public void parseRequestLine(){
+	public void parseRequestLine() throws EnptyRequestException{
 		String line = readLine();
+		if(line.length()==0){
+			throw new EnptyRequestException();
+		}
 		String[] arr = line.split("\\s");
 		method = arr[0];
 		url = arr[1];

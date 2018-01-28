@@ -70,6 +70,7 @@ public class HttpResponse {
 			out.write(data, 0, data.length);
 			out.write(HttpConText.CR);
 			out.write(HttpConText.LF);
+			System.out.println("发了一行:"+str);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
