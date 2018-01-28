@@ -1,7 +1,14 @@
 package context;
 
+import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
 
 public class HttpConText {
 	public static final String HEADER_CONTENT_TYPE = "Content-Type";
@@ -18,11 +25,18 @@ public class HttpConText {
 	}
 	//添加不同介质类型对应的介质信息
 	private static void init() {
-		mimeTypeMapping.put("html","text/html");
-		mimeTypeMapping.put("css", "text/css");
-		mimeTypeMapping.put("jpg", "image/jpg");
-		mimeTypeMapping.put("png", "image/png");
-		mimeTypeMapping.put("js", "application/javascript");
+		try {
+			SAXReader reader = new SAXReader();
+			Document doc = reader.read(new File("conf/web.xml"));
+			Element root = doc.getRootElement();
+			List<Element> elements = root.elements("mime-mapping");
+			for(Element e:elements){
+				mimeTypeMapping.put(e.elementText("extension"), e.elementText("mime-type"));
+			}
+			
+		} catch (DocumentException e) {
+			e.printStackTrace();
+		}
 	}
 	/**
 	 * 获取介质对应的映射信息

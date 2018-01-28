@@ -11,6 +11,7 @@ import java.util.Arrays;
 import http.EnptyRequestException;
 import http.HttpRequest;
 import http.HttpResponse;
+import servlet.LoginServlet;
 import servlet.RegServlet;
 
 public class ClientHandler implements Runnable{
@@ -30,7 +31,11 @@ public class ClientHandler implements Runnable{
 			File f = new File("webapps/"+request.getUrl());
 			System.out.println("文件存在:"+f.exists());
 			System.out.println(request.getRequestURI());
-			if("/myweb/reg".equals(request.getRequestURI())){
+			if("/myweb/login".equals(request.getRequestURI())){
+				System.out.println("进入登录处理方法");
+				LoginServlet login = new LoginServlet();
+				login.service(request,response);
+			}else if("/myweb/reg".equals(request.getRequestURI())){
 				RegServlet servlet = new RegServlet();
 				servlet.service(request, response);
 				
