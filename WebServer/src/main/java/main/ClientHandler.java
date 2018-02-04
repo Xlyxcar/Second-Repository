@@ -17,22 +17,21 @@ import servlet.LoginServlet;
 import servlet.RegServlet;
 
 public class ClientHandler implements Runnable{
-	Socket socket;
+	private Socket socket;
 	public ClientHandler(Socket socket){
 		this.socket = socket;
 	}
 	public void run() {
 		try {
-			//解析对象
+			//获取对象输入流,解析请求
 			InputStream in = socket.getInputStream();
 			HttpRequest request = new HttpRequest(in);
-			//响应对象
+			//获取对象输出流,发送响应
 			OutputStream out = socket.getOutputStream();
 			HttpResponse response = new HttpResponse(out);
 			
 			File f = new File("webapps/"+request.getUrl());
 			System.out.println("文件存在:"+f.exists());
-			System.out.println(request.getRequestURI());
 			//通过请求URI获取对应的Servlet类名
 			String servletName = ServerContext.getServletNameByURI(request.getRequestURI());
 			System.out.println("servletName"+servletName);
@@ -55,8 +54,9 @@ public class ClientHandler implements Runnable{
 				response.setContentType(extension);
 				//设置响应头中文件长度
 				response.setContentLength(f.length());
-				
+				//设置响应文件
 				response.setEntity(f);
+				//发送响应
 				response.flush();
 			}
 		} catch (IOException e) {

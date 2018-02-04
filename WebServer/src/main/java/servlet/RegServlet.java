@@ -6,6 +6,11 @@ import http.HttpResponse;
 import http.HttpServlet;
 import vo.UserInfo;
 
+/**
+ * 处理客户端注册业务
+ * @author asd99
+ *
+ */
 public class RegServlet extends HttpServlet{
 
 	public void service(HttpRequest request,HttpResponse response){

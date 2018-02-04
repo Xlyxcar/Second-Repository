@@ -17,7 +17,7 @@ import context.ServerContext;
 //3:请求正文(消息正文)
 
 public class HttpRequest {
-	InputStream in;
+	private InputStream in;
 	//请求方法,链接,协议版本
 	private String method,url,protocol;
 	//存放消息头信息
@@ -28,23 +28,32 @@ public class HttpRequest {
 	//附带参数分组
 	private Map<String, String> paramenters = new HashMap<String, String>();
 	
+	/**
+	 * 解析请求
+	 * @param in
+	 * @throws EnptyRequestException
+	 */
 	public HttpRequest(InputStream in) throws EnptyRequestException {
 		this.in = in;
 		parseRequestLine();
 		parseHeaders();
 		parseContent();
 	}
-	//解析消息正文
+	/**
+	 * 解析消息正文
+	 */
 	private void parseContent() {
 		try {
+			System.out.println("进入读取消息正文:"+headers.get("Content-Length"));
 			//如果存在正文长度,则正文存在
-			String len;
-			System.out.println("进入读取消息正文"+headers.get("Content-Length"));
 			if(headers.containsKey(HttpConText.HEADER_CONTENT_LENGTH)){
+				//获取消息正文长度
 				int length = Integer.valueOf(headers.get(HttpConText.HEADER_CONTENT_LENGTH));
+				//读取消息正文并转为字符串
 				byte[] data = new byte[length];
 				in.read(data);
 				String line = new String(data);
+				//解码
 				line = URLDecoder.decode(line, ServerContext.URIEncoding);
 				parseQuery(line);
 				System.out.println("解析完毕");
@@ -53,9 +62,13 @@ public class HttpRequest {
 			e.printStackTrace();
 		}
 	}
-	//解析请求行
-	public void parseRequestLine() throws EnptyRequestException{
+	/**
+	 * 解析请求行
+	 * @throws EnptyRequestException
+	 */
+	private void parseRequestLine() throws EnptyRequestException{
 		String line = readLine();
+		//请求行长度为0,抛出空请求异常
 		if(line.length()==0){
 			throw new EnptyRequestException();
 		}
@@ -65,6 +78,7 @@ public class HttpRequest {
 		if(url.indexOf("?")!=-1){
 			parseUrl();
 		}else{
+			//如请求链接不带参数,则uri=url
 			requestURI = url;
 		}
 		protocol = arr[2];
@@ -75,25 +89,35 @@ public class HttpRequest {
 	 */
 	private void parseUrl() {
 		try {
+			//解码,防止传入非欧洲字符集参数显示16进制码
 			url = URLDecoder.decode(url,ServerContext.URIEncoding);
 			System.out.println("url::"+url);
+			//获取URI
 			requestURI = url.substring(0, url.indexOf("?"));
+			//获取请求参数
 			queryString = url.substring(url.indexOf("?")+1, url.length());				
 			parseQuery(queryString);
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
 	}
+	/**
+	 * 解析请求参数
+	 * @param str
+	 */
 	private void parseQuery(String str) {
 		String[] querys = str.split("&");
 		for(String s:querys){
 			int index = s.indexOf("=");
+			//将解析后的参数放入paramenters
 			paramenters.put(s.substring(0,index), s.substring(index+1, s.length()));
 			System.out.println("参数:"+s.substring(0,index)+",值:"+s.substring(index+1, s.length()));
 		}
 	}
-	//解析消息头
-	public void parseHeaders(){
+	/**
+	 * 解析消息头
+	 */
+	private void parseHeaders(){
 		String line = readLine();
 		//消息头名,值
 		String name,value;
@@ -108,8 +132,10 @@ public class HttpRequest {
 		
 		
 	}
-	//解析消息正文
-	//读取一行消息
+	/**
+	 * 读取一行消息
+	 * @return
+	 */
 	private String readLine() {
 		StringBuilder data = new StringBuilder();
 		try{
@@ -117,6 +143,7 @@ public class HttpRequest {
 			int i,c1,c2=-1;
 			while((i=in.read())!=-1){
 				c1 = i;
+				//若读到换行符(LF),并且前一个字符为回车(CR),表示一行读取完毕
 				if(c2==HttpConText.CR && c1==HttpConText.LF){
 					break;
 				}

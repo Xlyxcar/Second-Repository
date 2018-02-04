@@ -1,5 +1,9 @@
 package vo;
-
+/**
+ * 用于存取用户信息
+ * @author asd99
+ *
+ */
 public class UserInfo {
 	private String username,password,nickname,phonenumber;
 

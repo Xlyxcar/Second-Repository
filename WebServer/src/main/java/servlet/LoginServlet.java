@@ -11,7 +11,11 @@ import http.HttpRequest;
 import http.HttpResponse;
 import http.HttpServlet;
 import vo.UserInfo;
-
+/**
+ * 处理客户端登录业务
+ * @author asd99
+ *
+ */
 public class LoginServlet extends HttpServlet{
 	public void service(HttpRequest request,HttpResponse response) throws IOException{
 		//获取客户端提交的用户名和密码

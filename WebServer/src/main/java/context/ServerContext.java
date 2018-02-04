@@ -11,16 +11,18 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
 public class ServerContext {
-	//保存URI对应servlet类名
+	//保存URI对应servlet类信息
 	static Map<String, String> servletMapping = new HashMap<String,String>();
-	//配置信息
+	//配置信息(端口号,协议版本,线程池容量,编码格式)
 	public static String port,protocol,threadPoolSum,URIEncoding;
 	
 	static{
 		initServletMapping();
 		initServerConfig();
 	}
-	//从.xml文件中获取配置信息并写入静态区
+	/**
+	 * 从.xml文件中获取配置信息并写入静态区
+	 */
 	private static void initServletMapping() {
 		try {
 			SAXReader reader = new SAXReader();
@@ -36,7 +38,9 @@ public class ServerContext {
 			e.printStackTrace();
 		}
 	}
-	//解析config.xml并将其中的配置信息载入程序静态区
+	/**
+	 * 解析config.xml并将其中的配置信息载入程序静态区
+	 */
 	private static void initServerConfig() {
 		try {
 			SAXReader reader = new SAXReader();
@@ -52,7 +56,11 @@ public class ServerContext {
 		}
 		
 	}
-	//通过URI获取对应servlet类名
+	/**
+	 * 通过URI获取对应servlet类名
+	 * @param uri
+	 * @return
+	 */
 	public static String getServletNameByURI(String uri){
 		return servletMapping.get(uri);
 	}
