@@ -24,6 +24,7 @@ public class HttpResponse {
 	//响应头信息
 	private Map<String, String> headers = new HashMap<String, String>();
 	
+	private int statusCode;
 	
 	public HttpResponse(OutputStream out) {
 		this.out = out;
@@ -39,10 +40,10 @@ public class HttpResponse {
 	}
 	//发送响应正文
 	private void sendContent() {
-		FileInputStream fis;
 		//读取需要发送的文件,写入数组并发送
-		try {
-			fis = new FileInputStream(entity);
+		try (
+			FileInputStream fis = new FileInputStream(entity);	
+			){
 			byte[] data = new byte[1024*10];
 			int len = -1;
 			while((len = fis.read(data))!=-1){
@@ -61,7 +62,7 @@ public class HttpResponse {
 	}
 	//发送状态行
 	private void sendStatusLine() {
-		String statusLine = ServerContext.protocol+" 200 OK";
+		String statusLine = ServerContext.protocol+" "+statusCode+" "+HttpConText.getStatusReasonByStatusCode(statusCode);
 		sendStr(statusLine);
 	}
 	//负责发送一行数据
@@ -90,5 +91,25 @@ public class HttpResponse {
 	public void setEntity(File entity) {
 		this.entity = entity;
 	}
-	
+	/**
+	 * 设定状态码
+	 * @param code
+	 */
+	public void setStatusCode(int code){
+		statusCode = code;
+	}
+	/**
+	 * 重定向发送
+	 * 设定状态代码为302(重定向),设定重定向链接并响应客户端
+	 * 客户端收到后,重新请求指定页面,完成跳转
+	 * @param url
+	 */
+	public void sendRedirect(String url){
+		//设定状态码为重定向
+		this.setStatusCode(HttpConText.STATUS_CODE_REDIRECT);
+		//添加重定向位置
+		this.headers.put(HttpConText.HEADER_LOCATION, url);
+		//发送响应
+		this.flush();
+	}
 }

@@ -1,2 +1,3 @@
-/jdbc/
-/db.properties
+/servlet/
+/context/
+/http/
