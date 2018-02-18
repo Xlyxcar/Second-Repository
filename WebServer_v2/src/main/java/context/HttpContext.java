@@ -5,5 +5,10 @@ package context;
  *
  */
 public class HttpContext {
+	public static final String CONTENT_TYPE = "Content-Type";
+	public static final String CONTENT_LENGTH = "Content-Length";
 
+	public static final int CR = 13;
+	public static final int LF = 10;
+	
 }
