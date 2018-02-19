@@ -1,5 +1,6 @@
 package main;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -13,6 +14,7 @@ import java.util.concurrent.Executors;
  */
 public class WebServler {
 	public static void main(String[] args) {
+		checkFile();
 		try {
 			ServerSocket server = new ServerSocket(8088); //建立服务端
 			ExecutorService pool = Executors.newFixedThreadPool(20); //创建线程池
@@ -25,6 +27,14 @@ public class WebServler {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+	}
+	/** 检查存储用户信息的文件是否存在 */
+	private static void checkFile(){
+			try {
+				File file = new File("user.dat");
+				if(!file.exists()) file.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 	}
 }
