@@ -2,6 +2,7 @@ package servlet;
 
 import java.io.File;
 
+import context.HttpServlet;
 import dao.UserDAO;
 import http.HttpRequest;
 import http.HttpResponse;
@@ -12,7 +13,7 @@ import vo.UserInfo;
  * @author asd99
  *
  */
-public class RegServlet extends Servlet{
+public class RegServlet extends HttpServlet{
 	public void service(HttpRequest request, HttpResponse response) {
 		String username = request.getParater("username");
 		UserDAO dao = new UserDAO();
@@ -25,15 +26,9 @@ public class RegServlet extends Servlet{
 			user.setPhone(request.getParater("phone"));
 			dao.saveUser(user);
 			
-			response.setEntity(new File("webapps/prompt/ok.html"));
-			response.setContentLength(response.getEntity().length());
-			response.setContentType("html");
-			response.flush();
+			response.sendRedirect("../prompt/ok.html");
 		}else{
-			response.setEntity(new File("webapps/prompt/no.html"));
-			response.setContentLength(response.getEntity().length());
-			response.setContentType("html");
-			response.flush();
+			response.sendRedirect("../prompt/no.html");
 		}
 	}
 

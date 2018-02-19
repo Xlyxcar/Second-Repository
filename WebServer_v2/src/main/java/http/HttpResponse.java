@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import context.HttpContext;
+import context.ServerContext;
 
 /**
  * 负责处理响应客户端请求
@@ -21,6 +22,7 @@ public class HttpResponse {
 	private File entity; //响应文件
 	private Map<String,String> headers = new HashMap<String, String>();//响应头信息
 	
+	private int statusCode; //状态码
 	public HttpResponse(OutputStream out) {
 		this.out = out;
 	}
@@ -57,7 +59,7 @@ public class HttpResponse {
 	}
 	/** 发送状态行 */
 	private void sendStatusLine() {
-		String line = "HTTP/1.1 200 OK";
+		String line = ServerContext.getProtocol()+" "+statusCode+" "+HttpContext.getStatusReasonByStatusCode(statusCode);
 		print(line);
 	}
 	/** 发送一行数据 */
@@ -71,9 +73,11 @@ public class HttpResponse {
 			e.printStackTrace();
 		}
 	}
-	/**  */
-	public void forword(String file){
-//		headers.put(HttpContext, value)
+	public void sendRedirect(String url){
+		setStatusCode(HttpContext.STATE_CODE_REDIRECT);
+		headers.put(HttpContext.LOCATION, url);
+		sendStatusLine();
+		sendHeaders();
 	}
 	/** 设置响应文件 */
 	public void setEntity(File entity) {
@@ -86,6 +90,9 @@ public class HttpResponse {
 	/** 设置响应文件长度 */
 	public void setContentLength(Long contentLength) {
 		headers.put(HttpContext.CONTENT_LENGTH, contentLength.toString());
+	}
+	public void setStatusCode(int statusCode) {
+		this.statusCode = statusCode;
 	}
 	public File getEntity() {
 		return entity;

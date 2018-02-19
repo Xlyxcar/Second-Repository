@@ -2,10 +2,14 @@ package http;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.Base64.Decoder;
 import java.util.HashMap;
 import java.util.Map;
 
 import context.HttpContext;
+import context.ServerContext;
 
 /**
  * 负责解析客户端请求
@@ -30,8 +34,26 @@ public class HttpRequest {
 	private void parseRequest() throws EnptyRequestException{
 		parseRequestLine();
 		parseHeaders();
+		parseContent();
 	}
-	
+	/**
+	 * 解析消息正文
+	 */
+	private void parseContent() {
+		//如果存在正文长度,并且正文类型为表单
+		if(headers.containsKey(HttpContext.CONTENT_LENGTH) && "application/x-www-form-urlencoded".equals(headers.get(HttpContext.CONTENT_TYPE))){
+			try {
+				int len = Integer.parseInt(headers.get(HttpContext.CONTENT_LENGTH));
+				byte[] data = new byte[len];
+				in.read(data);
+				String query = new String(data);
+				parseQueryString(query);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
 	/** 
 	 * 解析消息头 
 	 * 循环读取(直到读取到空字符串),以":"拆分字符串,并将":"两端的值去除空字符串后,作为键值对放入数组
@@ -70,9 +92,21 @@ public class HttpRequest {
 	 * 将参数放入parameters中
 	 */
 	private void parseUrl() {
-		requestURI = url.substring(0,url.indexOf("?"));
-		queryString = url.substring(url.indexOf("?")+1);
-		String[] arr = queryString.split("&");
+		try {
+			url = URLDecoder.decode(url,ServerContext.getURIEncoding());
+			requestURI = url.substring(0,url.indexOf("?"));
+			queryString = url.substring(url.indexOf("?")+1);
+			parseQueryString(queryString);
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+	}
+	/**
+	 * 解析表单提交数据并放入parameters中
+	 * @param query
+	 */
+	private void parseQueryString(String query){
+		String[] arr = query.split("&");
 		for(String str:arr){
 			String key = str.substring(0,str.indexOf("="));
 			String value = str.substring(str.indexOf("=")+1);
@@ -124,7 +158,7 @@ public class HttpRequest {
 		return protocol;
 	}
 	/** 获取指定请求行的对应值 */
-	public String getParamenter(String name){
+	public String getHeader(String name){
 		return headers.get(name);
 	}
 }
