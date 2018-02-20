@@ -5,6 +5,11 @@ package vo;
  *
  */
 public class UserInfo {
+	public String toString() {
+		return "UserInfo [username=" + username + ", password=" + password + ", nickname=" + nickname + ", phone="
+				+ phone + "]";
+	}
+
 	private String username,password,nickname,phone;
 
 	public String getUsername() {

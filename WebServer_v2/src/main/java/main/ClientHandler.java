@@ -1,11 +1,11 @@
 package main;
 
 import java.io.File;
-import java.lang.reflect.Method;
 import java.net.Socket;
 
 import context.HttpContext;
 import context.ServerContext;
+import http.EnptyRequestException;
 import http.HttpRequest;
 import http.HttpResponse;
 import http.HttpServlet;
@@ -67,6 +67,8 @@ public class ClientHandler implements Runnable{
 					response.flush();
 				}
 			}
+		} catch(EnptyRequestException e){
+			System.out.println("空请求");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

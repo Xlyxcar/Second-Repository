@@ -1,7 +1,5 @@
 package servlet;
 
-import java.io.File;
-
 import dao.UserDAO;
 import http.HttpRequest;
 import http.HttpResponse;
