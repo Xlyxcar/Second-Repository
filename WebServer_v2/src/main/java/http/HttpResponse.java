@@ -18,11 +18,17 @@ import context.ServerContext;
  *
  */
 public class HttpResponse {
-	private OutputStream out; //输出流
-	private File entity; //响应文件
-	private Map<String,String> headers = new HashMap<String, String>();//响应头信息
+	//输出流
+	private OutputStream out;
 	
-	private int statusCode; //状态码
+	//响应文件
+	private File entity;
+	
+	//响应头信息
+	private Map<String,String> headers = new HashMap<String, String>();
+	
+	//状态码
+	private int statusCode; 
 	public HttpResponse(OutputStream out) {
 		this.out = out;
 	}
@@ -73,6 +79,10 @@ public class HttpResponse {
 			e.printStackTrace();
 		}
 	}
+	/**
+	 * 让客户端重定向到指定地址
+	 * @param url
+	 */
 	public void sendRedirect(String url){
 		setStatusCode(HttpContext.STATE_CODE_REDIRECT);
 		headers.put(HttpContext.LOCATION, url);
@@ -91,9 +101,11 @@ public class HttpResponse {
 	public void setContentLength(Long contentLength) {
 		headers.put(HttpContext.CONTENT_LENGTH, contentLength.toString());
 	}
+	/** 设置状态码 */
 	public void setStatusCode(int statusCode) {
 		this.statusCode = statusCode;
 	}
+	/** 获取响应文件 */
 	public File getEntity() {
 		return entity;
 	}

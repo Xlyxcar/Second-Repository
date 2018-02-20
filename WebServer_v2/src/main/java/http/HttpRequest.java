@@ -17,11 +17,20 @@ import context.ServerContext;
  *
  */
 public class HttpRequest {
-	private InputStream in; //输入流接收客户端发送信息
-	private String method,url,protocol; //请求类型,地址,协议
-	private Map<String,String> headers = new HashMap<String, String>(); //请求行信息以键值对存放
-	private String requestURI,queryString; //分别存储地址栏请求的地址与参数(如果存在)
-	private Map<String,String> parameters = new HashMap<String,String>();//保存地址栏参数(如果存在)
+	//输入流接收客户端发送信息
+	private InputStream in;
+	
+	//请求类型,地址,协议
+	private String method,url,protocol;
+	
+	//消息头信息以键值对存放
+	private Map<String,String> headers = new HashMap<String, String>();
+	
+	//分别存储地址栏具体请求路径与参数(如果存在)
+	private String requestURI,queryString; 
+	
+	//保存地址栏参数(如果存在)
+	private Map<String,String> parameters = new HashMap<String,String>();
 	
 	public HttpRequest(InputStream in) throws EnptyRequestException {
 		this.in = in;
@@ -48,7 +57,7 @@ public class HttpRequest {
 				in.read(data);
 				String query = new String(data);
 				parseQueryString(query);
-			} catch (Exception e) {
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
@@ -62,8 +71,9 @@ public class HttpRequest {
 		while(true){
 			String line = readLine();
 			if(line.equals("")) break;
-			String key = line.substring(0, line.indexOf(":")).trim();
-			String value = line.substring(line.indexOf(":")+1).trim();
+			int index = line.indexOf(":");
+			String key = line.substring(0, index).trim();
+			String value = line.substring(index+1).trim();
 			headers.put(key, value);
 		}
 	}
@@ -75,16 +85,19 @@ public class HttpRequest {
 	 */
 	private void parseRequestLine() throws EnptyRequestException {
 		String line = readLine();
+		
 		if(line.length()<1) throw new EnptyRequestException("空请求");
-		String[] arr = line.split(" ");
+		
+		String[] arr = line.split("\\s");
 		method = arr[0];
 		url = arr[1];
+		protocol = arr[2];
+		
 		if(url.indexOf("?")!=-1){
 			parseUrl();
 		}else{
 			requestURI = url;
 		}
-		protocol = arr[2];
 	}
 	
 	/**
@@ -92,25 +105,26 @@ public class HttpRequest {
 	 * 将参数放入parameters中
 	 */
 	private void parseUrl() {
-		try {
-			url = URLDecoder.decode(url,ServerContext.getURIEncoding());
-			requestURI = url.substring(0,url.indexOf("?"));
-			queryString = url.substring(url.indexOf("?")+1);
-			parseQueryString(queryString);
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
+		requestURI = url.substring(0,url.indexOf("?"));
+		queryString = url.substring(url.indexOf("?")+1);
+		parseQueryString(queryString);
 	}
 	/**
 	 * 解析表单提交数据并放入parameters中
 	 * @param query
 	 */
 	private void parseQueryString(String query){
-		String[] arr = query.split("&");
-		for(String str:arr){
-			String key = str.substring(0,str.indexOf("="));
-			String value = str.substring(str.indexOf("=")+1);
-			parameters.put(key, value);
+		try {
+			query = URLDecoder.decode(query,ServerContext.getURIEncoding());
+			String[] arr = query.split("&");
+			for(String str:arr){
+				int index = str.indexOf("=");
+				String key = str.substring(0,index);
+				String value = str.substring(index+1);
+				parameters.put(key, value);
+			}
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -120,6 +134,7 @@ public class HttpRequest {
 	 */
 	private String readLine() {
 		StringBuffer line = new StringBuffer();
+		
 		try{
 			int c1 = -1;
 			int c2 = -1;

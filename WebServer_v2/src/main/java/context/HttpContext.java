@@ -23,6 +23,7 @@ public class HttpContext {
 	public static final int CR = 13; //回车符
 	public static final int LF = 10; //换行符
 	
+	//介质类型映射信息
 	public static Map<String,String> mimeTypeMapping = new HashMap<String, String>();
 	
 	public static final int STATE_CODE_OK = 200;
@@ -35,7 +36,7 @@ public class HttpContext {
 		initCodeReason();
 	}
 	/**
-	 * 读取web.xml,初始化文件后缀对应响应类型
+	 * 读取web.xml,初始化介质类型映射信息
 	 */
 	private static void initMimeTypeMapping() {
 		SAXReader reader = new SAXReader();
@@ -53,18 +54,29 @@ public class HttpContext {
 			e.printStackTrace();
 		}
 	}
+	
+	/**
+	 * 初始化状态代码描述信息
+	 */
 	private static void initCodeReason() {
 		codeReasonMap.put(200, "OK");
 		codeReasonMap.put(404, "NOT_FOUND");
 		codeReasonMap.put(500, "ERROR");
 		codeReasonMap.put(302, "REDIRECT");
 	}
+	/**
+	 * 根据资源后缀获取HTTP规定对应的介质类型
+	 * @param extension
+	 * @return
+	 */
 	public static String getMimeType(String extension){
 		return mimeTypeMapping.get(extension);
 	}
-	public static void main(String[] args) {
-		System.out.println(mimeTypeMapping.toString());
-	}
+	/**
+	 * 根据给定状态码获取对应的状态描述
+	 * @param code
+	 * @return
+	 */
 	public static String getStatusReasonByStatusCode(int code){
 		return codeReasonMap.get(code);
 	}

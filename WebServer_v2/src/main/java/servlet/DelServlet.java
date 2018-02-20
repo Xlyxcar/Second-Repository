@@ -1,6 +1,6 @@
 package servlet;
 
-import context.HttpServlet;
+import http.HttpServlet;
 
 /**
  * 处理删除用户业务

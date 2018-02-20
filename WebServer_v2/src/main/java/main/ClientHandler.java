@@ -4,10 +4,11 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.net.Socket;
 
-import context.HttpServlet;
+import context.HttpContext;
 import context.ServerContext;
 import http.HttpRequest;
 import http.HttpResponse;
+import http.HttpServlet;
 
 /**
  * 负责接收和响应客户端
@@ -23,13 +24,13 @@ public class ClientHandler implements Runnable{
 	
 	public void run() {
 		try {
-			HttpRequest request = new HttpRequest(socket.getInputStream()); //解析客户端请求
-			HttpResponse response = new HttpResponse(socket.getOutputStream()); //响应客户端
-			File file = new File("webapps/"+request.getUrl());
+			//解析客户端请求
+			HttpRequest request = new HttpRequest(socket.getInputStream()); 
+			//响应客户端
+			HttpResponse response = new HttpResponse(socket.getOutputStream());
 			
-			System.out.println("URI:"+request.getUri());
 			String servletName = ServerContext.getServletNameByURI(request.getUri());
-			System.out.println("cls:"+servletName);
+
 			if(servletName!=null){
 				Class cla = Class.forName(servletName);
 				//方式1
@@ -40,16 +41,31 @@ public class ClientHandler implements Runnable{
 				//方式2
 				HttpServlet servlet = (HttpServlet)cla.newInstance(); //实例化对象并强转为HttpServlet
 				servlet.service(request, response); //执行HttpServlet的service()方法
-			}
-			else if(file.exists()){
-				String extension = file.getName().substring(file.getName().lastIndexOf(".")+1);
-				response.setEntity(file);
-				response.setContentLength(file.length());
-				response.setContentType(extension);
-				response.flush();
 			}else{
-				response.setEntity(new File("webapps/prompt/notFound.html"));
-				response.flush();
+				File file = new File("webapps/"+request.getUrl());
+				
+				if(file.exists()){ //文件存在,响应对应文件
+					String extension = file.getName().substring(file.getName().lastIndexOf(".")+1);
+					//设置状态码
+					response.setStatusCode(HttpContext.STATE_CODE_OK);
+					//设置响应头
+					response.setEntity(file);
+					response.setContentLength(file.length());
+					//设置响应文件
+					response.setContentType(extension);
+					response.flush();
+				}else{ //否则,响应文件未找到
+					file = new File("webapps/prompt/notFound.html");
+					String extension = file.getName().substring(file.getName().lastIndexOf(".")+1);
+					//设置状态码
+					response.setStatusCode(HttpContext.STATE_CODE_OK);
+					//设置响应头
+					response.setEntity(file);
+					response.setContentLength(file.length());
+					//设置响应文件
+					response.setContentType(extension);
+					response.flush();
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

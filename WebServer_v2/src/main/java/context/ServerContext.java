@@ -19,13 +19,13 @@ public class ServerContext {
 	//端口号,协议版本,线程池数,字符集编码
 	private static String port,protocol,threadPoolSum,URIEncoding;
 	static{
-		init();
+		initServletMapping();
 		initServletConfig();
 	}
 	/**
 	 * 读取servlet.xml中的数据(uri,class),存入servletMapping
 	 */
-	private static void init() {
+	private static void initServletMapping() {
 		try {
 			SAXReader reader = new SAXReader();
 			Document doc = reader.read(new File("conf/servlets.xml"));
@@ -49,6 +49,7 @@ public class ServerContext {
 			Document doc = reader.read(new File("conf/conf.xml"));
 			Element root = doc.getRootElement();
 			Element e = root.element("Connector");
+			
 			port = e.attributeValue("port");
 			protocol = e.attributeValue("protocol");
 			threadPoolSum = e.attributeValue("poolSum");
